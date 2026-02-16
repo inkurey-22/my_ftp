@@ -14,6 +14,7 @@
 void ftp_cmd_user(int client_fd, char *buffer, int *logged_in)
 {
     char *username = buffer + 5;
+
     if (strncmp(username, "Anonymous", 9) == 0) {
         my_send(client_fd, "230 User logged in, proceed.\r\n", 31, 0);
         *logged_in = 1;

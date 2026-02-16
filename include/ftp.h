@@ -10,7 +10,6 @@
     #define FTP_H_
 
     #define MAX_CLIENTS 64
-    
     #include <stdint.h>
     #include <sys/types.h>
 // clang-format on
@@ -22,8 +21,8 @@ struct ftp_server_s {
 };
 
 int8_t launch_server(struct ftp_server_s *server);
-int run_server_loop(struct ftp_server_s *server);
-
+void handle_client_session(int client_fd);
+int run_server_poll_loop(int listen_fd);
 ssize_t my_send(int sockfd, const void *buf, size_t len, int flags);
 
 #endif /* !FTP_H_ */

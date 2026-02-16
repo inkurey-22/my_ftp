@@ -59,3 +59,4 @@ build/
 myftp
 .cache/
 compile_commands.json
+example/
