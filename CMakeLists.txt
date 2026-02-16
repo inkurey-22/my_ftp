@@ -15,3 +15,5 @@ add_executable(myftp ${SRC_FILES})
 set_target_properties(myftp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 target_include_directories(myftp PRIVATE include)
+
+target_compile_options(myftp PRIVATE -Wall -Wextra)
