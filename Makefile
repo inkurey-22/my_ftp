@@ -33,4 +33,4 @@ SRC_DIR = src
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 
 style:
-	epiclang -fsyntax-only $(SRC_FILES)
+	epiclang -fsyntax-only $(SRC_FILES) -Iinclude

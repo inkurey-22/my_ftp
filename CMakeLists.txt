@@ -8,7 +8,7 @@ project(myftp LANGUAGES C)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-file(GLOB SRC_FILES src/*.c)
+file(GLOB_RECURSE SRC_FILES src/*.c)
 
 add_executable(myftp ${SRC_FILES})
 
