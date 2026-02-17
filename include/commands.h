@@ -30,4 +30,4 @@ void ftp_cmd_pwd(struct ftp_server_s *server, int client_fd, char *buffer,
 extern const ftp_command_entry_t FTP_COMMANDS[];
 extern const int FTP_COMMANDS_COUNT;
 
-#endif// FTP_COMMANDS_H
+#endif /* FTP_COMMANDS_H */
