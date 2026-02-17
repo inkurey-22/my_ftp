@@ -10,11 +10,10 @@
 
 #include <unistd.h>
 
-void ftp_cmd_quit(struct ftp_server_s *server, int client_fd, char *buffer,
-    int *logged_in)
+void ftp_cmd_quit([[maybe_unused]] struct ftp_server_s *server,
+    struct client_state_t *cstate, [[maybe_unused]] char *buffer)
 {
-    (void) server;
-    (void) buffer;
-    (void) logged_in;
-    my_send(client_fd, "221 Service closing control connection.\r\n", 43, 0);
+    if (cstate)
+        my_send(cstate->fd, "221 Service closing control connection.\r\n", 43,
+            0);
 }

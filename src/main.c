@@ -5,11 +5,11 @@
 ** main
 */
 
+#include "ftp.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "ftp.h"
 
 void print_usage(const char *prog)
 {
@@ -36,7 +36,7 @@ int8_t parse_args(int ac, char **av, struct ftp_server_s *server)
 
 int main(int ac, char **av)
 {
-    struct ftp_server_s server;
+    struct ftp_server_s server = {0};
 
     switch (parse_args(ac, av, &server)) {
         case 1:

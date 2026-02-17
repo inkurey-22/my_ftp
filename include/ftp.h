@@ -10,6 +10,8 @@
     #define FTP_H_
 
     #define MAX_CLIENTS 64
+    #define USERDB_PATH "userdb.txt"
+    #include <stdio.h>
     #include <stdint.h>
     #include <sys/types.h>
 // clang-format on
@@ -18,11 +20,14 @@ struct ftp_server_s {
     uint16_t port;
     int fd;
     char *home_path;
+    FILE *log_file;
 };
 
 int8_t launch_server(struct ftp_server_s *server);
 void handle_client_session(struct ftp_server_s *server, int client_fd);
 int run_server_poll_loop(struct ftp_server_s *server);
 ssize_t my_send(int sockfd, const void *buf, size_t len, int flags);
+int logger(FILE *file, const char *format, ...);
+bool check_user_password(const char *username, const char *password);
 
 #endif /* !FTP_H_ */

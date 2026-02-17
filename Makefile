@@ -33,4 +33,4 @@ SRC_DIR = src
 SRC_FILES = $(shell find $(SRC_DIR) -name '*.c')
 
 style:
-	epiclang -fsyntax-only $(SRC_FILES) -Iinclude
+	epiclang -fsyntax-only $(SRC_FILES) -Iinclude -std=c23

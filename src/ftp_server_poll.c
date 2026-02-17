@@ -2,92 +2,51 @@
 ** EPITECH PROJECT, 2026
 ** my_ftp
 ** File description:
-** ftp_server_poll - poll/fork server loop
+** ftp_server_poll
 */
 
+#include "client_state.h"
 #include "ftp.h"
+#include "poll_loop.h"
+#include "server_context.h"
+
 #include <netinet/in.h>
-#include <poll.h>
-#include <signal.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-static void close_client(int fd)
+struct client_state_t *find_client_state(struct client_state_t *arr,
+    int arrlen, int fd)
 {
-    if (fd >= 0)
-        close(fd);
+    for (int i = 0; i < arrlen; ++i) {
+        if (arr[i].fd == fd)
+            return &arr[i];
+    }
+    return nullptr;
 }
 
-static void handle_new_connection(struct ftp_server_s *server, int listen_fd,
-    struct pollfd *pfds)
+static void free_clients(struct pollfd *pfds, client_state_t *client_states)
 {
-    struct sockaddr_in client_addr;
-    socklen_t client_len = sizeof(client_addr);
-    int client_fd =
-        accept(listen_fd, (struct sockaddr *) &client_addr, &client_len);
-    pid_t pid;
-
-    (void) pfds;
-    if (client_fd < 0)
-        return;
-    pid = fork();
-    if (pid == 0) {
-        handle_client_session(server, client_fd);
-        close_client(client_fd);
-        _exit(0);
-    } else if (pid > 0) {
-        close_client(client_fd);
+    for (int i = 0; i < MAX_CLIENTS + 1; ++i) {
+        pfds[i].fd = -1;
+        client_states[i].fd = -1;
     }
-}
-
-static void handle_client_ready(struct ftp_server_s *server, int idx,
-    struct pollfd *pfds)
-{
-    pid_t pid = fork();
-
-    if (pid == 0) {
-        handle_client_session(server, pfds[idx].fd);
-        close_client(pfds[idx].fd);
-        _exit(0);
-    } else if (pid > 0) {
-        close_client(pfds[idx].fd);
-        pfds[idx].fd = -1;
-        pfds[idx].events = 0;
-    }
-}
-
-static void handle_poll_events(struct ftp_server_s *server, int listen_fd,
-    struct pollfd *pfds, int nfds)
-{
-    int i;
-
-    if (pfds[0].revents & POLLIN)
-        handle_new_connection(server, listen_fd, pfds);
-    for (i = 1; i < nfds; ++i) {
-        if (pfds[i].fd >= 0 && (pfds[i].revents & POLLIN))
-            handle_client_ready(server, i, pfds);
-    }
-    for (i = 0; i < nfds; ++i)
-        pfds[i].revents = 0;
 }
 
 int run_server_poll_loop(struct ftp_server_s *server)
 {
-    struct pollfd pfds[MAX_CLIENTS + 1];
+    struct pollfd pfds[MAX_CLIENTS + 1] = {0};
+    client_state_t client_states[MAX_CLIENTS + 1] = {0};
     int nfds = MAX_CLIENTS + 1;
-    int ready;
+    server_context_t ctx = {0};
 
-    memset(pfds, -1, sizeof(pfds));
+    free_clients(pfds, client_states);
     pfds[0].fd = server->fd;
     pfds[0].events = POLLIN;
-    signal(SIGCHLD, SIG_IGN);
-    while (1) {
-        ready = poll(pfds, nfds, -1);
-        if (ready < 0)
-            continue;
-        handle_poll_events(server, server->fd, pfds, nfds);
-    }
+    client_states[0].fd = server->fd;
+    ctx.server = server;
+    ctx.listen_fd = server->fd;
+    ctx.pfds = pfds;
+    ctx.client_states = client_states;
+    ctx.nfds = nfds;
+    poll_loop(&ctx, pfds, nfds);
     return 0;
 }

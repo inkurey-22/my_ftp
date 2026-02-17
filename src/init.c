@@ -9,7 +9,6 @@
 
 #include <netinet/in.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <unistd.h>
 
 static int create_server_socket(void)
@@ -38,7 +37,7 @@ static void init_sockaddr_in(struct sockaddr_in *addr, uint16_t port)
 
 static int bind_server_socket(int sockfd, uint16_t port)
 {
-    struct sockaddr_in addr;
+    struct sockaddr_in addr = {0};
 
     init_sockaddr_in(&addr, port);
     if (bind(sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0)
