@@ -20,7 +20,8 @@ static void close_client(int fd)
         close(fd);
 }
 
-static void handle_new_connection(int listen_fd, struct pollfd *pfds)
+static void handle_new_connection(struct ftp_server_s *server, int listen_fd,
+    struct pollfd *pfds)
 {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -33,7 +34,7 @@ static void handle_new_connection(int listen_fd, struct pollfd *pfds)
         return;
     pid = fork();
     if (pid == 0) {
-        handle_client_session(client_fd);
+        handle_client_session(server, client_fd);
         close_client(client_fd);
         _exit(0);
     } else if (pid > 0) {
@@ -41,12 +42,13 @@ static void handle_new_connection(int listen_fd, struct pollfd *pfds)
     }
 }
 
-static void handle_client_ready(int idx, struct pollfd *pfds)
+static void handle_client_ready(struct ftp_server_s *server, int idx,
+    struct pollfd *pfds)
 {
     pid_t pid = fork();
 
     if (pid == 0) {
-        handle_client_session(pfds[idx].fd);
+        handle_client_session(server, pfds[idx].fd);
         close_client(pfds[idx].fd);
         _exit(0);
     } else if (pid > 0) {
@@ -56,35 +58,36 @@ static void handle_client_ready(int idx, struct pollfd *pfds)
     }
 }
 
-static void handle_poll_events(int listen_fd, struct pollfd *pfds, int nfds)
+static void handle_poll_events(struct ftp_server_s *server, int listen_fd,
+    struct pollfd *pfds, int nfds)
 {
     int i;
 
     if (pfds[0].revents & POLLIN)
-        handle_new_connection(listen_fd, pfds);
+        handle_new_connection(server, listen_fd, pfds);
     for (i = 1; i < nfds; ++i) {
         if (pfds[i].fd >= 0 && (pfds[i].revents & POLLIN))
-            handle_client_ready(i, pfds);
+            handle_client_ready(server, i, pfds);
     }
     for (i = 0; i < nfds; ++i)
         pfds[i].revents = 0;
 }
 
-int run_server_poll_loop(int listen_fd)
+int run_server_poll_loop(struct ftp_server_s *server)
 {
     struct pollfd pfds[MAX_CLIENTS + 1];
     int nfds = MAX_CLIENTS + 1;
     int ready;
 
     memset(pfds, -1, sizeof(pfds));
-    pfds[0].fd = listen_fd;
+    pfds[0].fd = server->fd;
     pfds[0].events = POLLIN;
     signal(SIGCHLD, SIG_IGN);
     while (1) {
         ready = poll(pfds, nfds, -1);
         if (ready < 0)
             continue;
-        handle_poll_events(listen_fd, pfds, nfds);
+        handle_poll_events(server, server->fd, pfds, nfds);
     }
     return 0;
 }

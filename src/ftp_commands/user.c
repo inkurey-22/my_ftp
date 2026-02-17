@@ -11,8 +11,10 @@
 #include <string.h>
 #include <unistd.h>
 
-void ftp_cmd_user(int client_fd, char *buffer, int *logged_in)
+void ftp_cmd_user(struct ftp_server_s *server, int client_fd, char *buffer,
+    int *logged_in)
 {
+    (void) server;
     char *username = buffer + 5;
 
     if (strncmp(username, "Anonymous", 9) == 0) {

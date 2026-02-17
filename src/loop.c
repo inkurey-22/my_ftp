@@ -14,7 +14,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-static void handle_ftp_command(int client_fd, char *buffer, int *logged_in)
+static void handle_ftp_command(struct ftp_server_s *server, int client_fd,
+    char *buffer, int *logged_in)
 {
     int found = 0;
     int i;
@@ -26,7 +27,7 @@ static void handle_ftp_command(int client_fd, char *buffer, int *logged_in)
             continue;
         if (strcmp(FTP_COMMANDS[i].name, "USER") == 0 && buffer[4] != ' ')
             continue;
-        FTP_COMMANDS[i].func(client_fd, buffer, logged_in);
+        FTP_COMMANDS[i].func(server, client_fd, buffer, logged_in);
         found = 1;
         break;
     }
@@ -34,7 +35,7 @@ static void handle_ftp_command(int client_fd, char *buffer, int *logged_in)
         my_send(client_fd, "502 Command not implemented.\r\n", 31, 0);
 }
 
-void handle_client_session(int client_fd)
+void handle_client_session(struct ftp_server_s *server, int client_fd)
 {
     const char *greeting = "220 You lost the game :3.\r\n";
     int logged_in = 0;
@@ -47,7 +48,7 @@ void handle_client_session(int client_fd)
         n = read(client_fd, buffer, sizeof(buffer) - 1);
         if (n <= 0)
             break;
-        handle_ftp_command(client_fd, buffer, &logged_in);
+        handle_ftp_command(server, client_fd, buffer, &logged_in);
         if (strncmp(buffer, "QUIT", 4) == 0)
             break;
     }
