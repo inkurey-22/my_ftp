@@ -17,3 +17,5 @@ set_target_properties(myftp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_
 target_include_directories(myftp PRIVATE include)
 
 target_compile_options(myftp PRIVATE -Wall -Wextra)
+
+target_link_options(myftp PRIVATE -lssl -lcrypto)

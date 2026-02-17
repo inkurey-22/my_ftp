@@ -1,0 +1,6 @@
+# Example user database for my_ftp
+# Format: username:sha256(password)
+# Example (password is 'secret'):
+# alice:2bb80d537b1da3e38bd30361aa855686bde0baefbfa6b8b3e6c7b8b3e6c7b8b3
+# bob:12dadae2e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3
+Anonymous:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855

@@ -13,12 +13,15 @@
     #include <stddef.h>
 // clang-format on
 
-typedef struct {
+struct client_state_t {
     int fd;
     char buffer[1024];
     size_t buf_used;
     bool logged_in;
     bool to_close;
-} client_state_t;
+    char username[64];// Store last provided username
+};
+
+typedef struct client_state_t client_state_t;
 
 #endif /* CLIENT_STATE_H */
