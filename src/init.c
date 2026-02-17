@@ -81,7 +81,7 @@ int8_t launch_server(struct ftp_server_s *server)
     if (sockfd < 0)
         return 84;
     server->fd = sockfd;
-    run_server_poll_loop(server->fd);
+    run_server_poll_loop(server);
     close(sockfd);
     return 0;
 }
