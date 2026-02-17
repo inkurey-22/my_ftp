@@ -1,10 +1,3 @@
-SRC = \
-	src/ftp_server_poll.c \
-	src/poll_loop.c \
-	src/handle_poll_events.c \
-	src/handle_client_ready.c \
-	src/ftp_server_poll_internals.c \
-	src/handle_new_connection.c \
 ##
 ## EPITECH PROJECT, 2026
 ## my_ftp
@@ -38,12 +31,6 @@ run: all
 
 SRC_DIR = src
 SRC_FILES = $(shell find $(SRC_DIR) -name '*.c')
-SRC = \
-	src/ftp_server_poll.c \
-	src/poll_loop.c \
-	src/handle_poll_events.c \
-	src/handle_client_ready.c \
-	src/ftp_server_poll_internals.c \
 
 style:
 	epiclang -fsyntax-only $(SRC_FILES) -Iinclude -std=c23
