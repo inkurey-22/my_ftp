@@ -42,7 +42,7 @@ void ftp_cmd_pass([[maybe_unused]] struct ftp_server_s *server,
     username = (cstate->username[0]) ? cstate->username : "Anonymous";
     password = parse_password(buffer);
     if (check_user_password(username, password)) {
-        my_send(cstate->fd, "230 User logged in, proceed.\r\n", 31, 0);
+        my_send(cstate->fd, "230 User logged in, proceed.\r\n", 32, 0);
         cstate->logged_in = 1;
     } else {
         my_send(cstate->fd, "530 Login incorrect.\r\n", 25, 0);

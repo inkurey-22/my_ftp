@@ -10,6 +10,19 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+static void initialize_client_state(server_context_t *ctx, int i,
+    int client_fd)
+{
+    ctx->client_states[i].fd = client_fd;
+    ctx->client_states[i].buf_used = 0;
+    ctx->client_states[i].logged_in = false;
+    ctx->client_states[i].to_close = false;
+    ctx->client_states[i].data_fd = -1;
+    ctx->pfds[i].fd = client_fd;
+    ctx->pfds[i].events = POLLIN;
+    my_send(client_fd, "220 Service ready for new user.\r\n", 32, 0);
+}
+
 void handle_new_connection(server_context_t *ctx)
 {
     struct sockaddr_in client_addr = {0};
@@ -21,13 +34,7 @@ void handle_new_connection(server_context_t *ctx)
         return;
     for (int i = 1; i < ctx->nfds; ++i) {
         if (ctx->client_states[i].fd == -1) {
-            ctx->client_states[i].fd = client_fd;
-            ctx->client_states[i].buf_used = 0;
-            ctx->client_states[i].logged_in = false;
-            ctx->client_states[i].to_close = false;
-            ctx->pfds[i].fd = client_fd;
-            ctx->pfds[i].events = POLLIN;
-            my_send(client_fd, "220 You lost the game :3.\r\n", 27, 0);
+            initialize_client_state(ctx, i, client_fd);
             return;
         }
     }
