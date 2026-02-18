@@ -51,5 +51,5 @@ void ftp_cmd_pwd([[maybe_unused]] struct ftp_server_s *server,
     compute_vpath(cwd, server, vpath, sizeof(vpath));
     my_send(cstate->fd, "257 \"", 5, 0);
     my_send(cstate->fd, vpath, strlen(vpath), 0);
-    my_send(cstate->fd, "\" created.\r\n", 12, 0);
+    my_send(cstate->fd, "\" created.\r\n", 18, 0);
 }

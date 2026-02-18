@@ -38,7 +38,7 @@ static void handle_ftp_command(struct ftp_server_s *server, int client_fd,
 
 void handle_client_session(struct ftp_server_s *server, int client_fd)
 {
-    const char *greeting = "220 You lost the game :3.\r\n";
+    const char *greeting = "220 Service ready for new user.\r\n";
     int logged_in = 0;
     char buffer[1024] = {0};
     ssize_t n = 0;

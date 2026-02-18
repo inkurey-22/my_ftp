@@ -11,6 +11,7 @@
 
     #include <stdbool.h>
     #include <stddef.h>
+    #include <netinet/in.h>
 // clang-format on
 
 struct client_state_t {
@@ -20,6 +21,9 @@ struct client_state_t {
     bool logged_in;
     bool to_close;
     char username[64];// Store last provided username
+    int data_fd;      // Passive mode data connection fd, -1 if not open
+    struct sockaddr_in active_addr;// Active mode address (PORT)
+    int active_mode;// 1 if active mode (PORT) is set, 0 otherwise
 };
 
 typedef struct client_state_t client_state_t;
