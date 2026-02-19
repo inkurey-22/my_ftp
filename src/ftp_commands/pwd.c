@@ -41,15 +41,17 @@ void ftp_cmd_pwd([[maybe_unused]] struct ftp_server_s *server,
     char vpath[1024] = "/";
 
     if (cstate == NULL || !cstate->logged_in) {
-        my_send(cstate ? cstate->fd : -1, "530 Not logged in.\r\n", 21, 0);
+        my_send(cstate ? cstate->fd : -1, "530 Not logged in.\r\n",
+            strlen("530 Not logged in.\r\n"), 0);
         return;
     }
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        my_send(cstate->fd, "550 Failed to get current directory.\r\n", 39, 0);
+        my_send(cstate->fd, "550 Failed to get current directory.\r\n",
+            strlen("550 Failed to get current directory.\r\n"), 0);
         return;
     }
     compute_vpath(cwd, server, vpath, sizeof(vpath));
-    my_send(cstate->fd, "257 \"", 5, 0);
+    my_send(cstate->fd, "257 \"", strlen("257 \""), 0);
     my_send(cstate->fd, vpath, strlen(vpath), 0);
-    my_send(cstate->fd, "\" created.\r\n", 18, 0);
+    my_send(cstate->fd, "\" created.\r\n", strlen("\" created.\r\n"), 0);
 }

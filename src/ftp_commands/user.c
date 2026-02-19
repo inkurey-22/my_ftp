@@ -42,5 +42,6 @@ void ftp_cmd_user([[maybe_unused]] struct ftp_server_s *server,
     if (!parse_and_set_username(cstate, buffer))
         return;
     cstate->logged_in = 0;
-    my_send(cstate->fd, "331 User name okay, need password.\r\n", 41, 0);
+    my_send(cstate->fd, "331 User name okay, need password.\r\n",
+        strlen("331 User name okay, need password.\r\n"), 0);
 }

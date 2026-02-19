@@ -8,11 +8,13 @@
 #include "handle_new_connection.h"
 #include "ftp.h"
 #include <netinet/in.h>
+#include <string.h>
 #include <unistd.h>
 
 static void initialize_client_state(server_context_t *ctx, int i,
     int client_fd)
 {
+    const char *greeting = "220 Service ready for new user.\r\n";
     ctx->client_states[i].fd = client_fd;
     ctx->client_states[i].buf_used = 0;
     ctx->client_states[i].logged_in = false;
@@ -20,7 +22,7 @@ static void initialize_client_state(server_context_t *ctx, int i,
     ctx->client_states[i].data_fd = -1;
     ctx->pfds[i].fd = client_fd;
     ctx->pfds[i].events = POLLIN;
-    my_send(client_fd, "220 Service ready for new user.\r\n", 32, 0);
+    my_send(client_fd, greeting, strlen(greeting), 0);
 }
 
 void handle_new_connection(server_context_t *ctx)

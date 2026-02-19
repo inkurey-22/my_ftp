@@ -29,6 +29,8 @@ static void handle_ftp_command(struct ftp_server_s *server, int client_fd,
         if (strcmp(FTP_COMMANDS[i].name, "USER") == 0 && buffer[4] != ' ')
             continue;
         FTP_COMMANDS[i].func(server, &client_state, buffer);
+        if (logged_in)
+            *logged_in = client_state.logged_in;
         found = 1;
         break;
     }

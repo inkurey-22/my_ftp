@@ -38,6 +38,9 @@ void ftp_cmd_stor(struct ftp_server_s *server, struct client_state_t *cstate,
 //     char *buffer);
 void ftp_cmd_pasv(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
+
+void ftp_cmd_list(struct ftp_server_s *server, struct client_state_t *cstate,
+    char *buffer);
 void ftp_cmd_port(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
 

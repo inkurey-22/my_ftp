@@ -16,6 +16,7 @@ const ftp_command_entry_t FTP_COMMANDS[] = {
     {"STOR", ftp_cmd_stor},
     {"PASV", ftp_cmd_pasv},
     {"PORT", ftp_cmd_port},
+    {"LIST", ftp_cmd_list},
 };
 
 const int FTP_COMMANDS_COUNT =
