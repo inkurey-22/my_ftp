@@ -33,7 +33,7 @@ static char *parse_password(char *buffer)
 static void handle_login_success(struct ftp_server_s *server,
     struct client_state_t *cstate)
 {
-    my_send(cstate->fd, reply_230, strlen(reply_230), 0);
+    my_send(cstate->fd, REPLY_230, strlen(REPLY_230), 0);
     cstate->logged_in = 1;
     if (server && server->home_path) {
         strncpy(cstate->real_cwd, server->home_path,
@@ -48,7 +48,7 @@ static void handle_login_success(struct ftp_server_s *server,
 
 static void handle_login_failure(int fd)
 {
-    static char const *reply_530_login = "530 Login incorrect.\r\n";
+    const char *const reply_530_login = "530 Login incorrect.\r\n";
 
     my_send(fd, reply_530_login, strlen(reply_530_login), 0);
 }

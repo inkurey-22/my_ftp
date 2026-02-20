@@ -30,8 +30,8 @@ static int parse_and_set_username(struct client_state_t *cstate, char *buffer)
 
     trim_username(&username, &len);
     if (username == NULL || *username == '\0' || len == 0) {
-        my_send(cstate->fd, reply_530_invalid_username,
-            strlen(reply_530_invalid_username), 0);
+        my_send(cstate->fd, REPLY_530_INVALID_USERNAME,
+            strlen(REPLY_530_INVALID_USERNAME), 0);
         cstate->logged_in = 0;
         cstate->username[0] = '\0';
         return 0;
@@ -48,10 +48,8 @@ void ftp_cmd_user([[maybe_unused]] struct ftp_server_s *server,
 {
     if (cstate == NULL)
         return;
-
     if (!parse_and_set_username(cstate, buffer))
         return;
-
     cstate->logged_in = 0;
-    my_send(cstate->fd, reply_331, strlen(reply_331), 0);
+    my_send(cstate->fd, REPLY_331, strlen(REPLY_331), 0);
 }

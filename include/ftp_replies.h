@@ -12,39 +12,39 @@
 // FTP Reply Messages (RFC 959)
 
 // 1xx: Positive Preliminary reply
-extern const char *REPLY_120;
-extern const char *reply_125;
-extern const char *reply_150;
+extern const char *const REPLY_120;
+extern const char *const REPLY_125;
+extern const char *const REPLY_150;
 
 // 2xx: Positive Completion reply
-extern const char *reply_200;
-extern const char *reply_214;
-extern const char *reply_220;
-extern const char *reply_221;
-extern const char *reply_226;
-extern const char *reply_227;
-extern const char *reply_230;
-extern const char *reply_250;
-extern const char *reply_257;
+extern const char *const REPLY_200;
+extern const char *const REPLY_214;
+extern const char *const REPLY_220;
+extern const char *const REPLY_221;
+extern const char *const REPLY_226;
+extern const char *const REPLY_227;
+extern const char *const REPLY_230;
+extern const char *const REPLY_250;
+extern const char *const REPLY_257;
 
 // 3xx: Positive Intermediate reply
-extern const char *reply_331;
-extern const char *reply_332;
+extern const char *const REPLY_331;
+extern const char *const REPLY_332;
 
 // 4xx: Transient Negative Completion reply (custom/extended)
-extern const char *reply_425_use_pasv;
-extern const char *reply_425_cant_open_data;
-extern const char *reply_426_transfer_aborted;
+extern const char *const REPLY_425_USE_PASV;
+extern const char *const REPLY_425_CANT_OPEN_DATA;
+extern const char *const REPLY_426_TRANSFER_ABORTED;
 
 // 5xx: Error replies (RFC compliant, generic and custom)
-extern const char *reply_500;
-extern const char *reply_501;
-extern const char *reply_501_missing_file_path;
-extern const char *reply_530;
-extern const char *reply_530_invalid_username;
-extern const char *reply_550;
-extern const char *reply_550_failed_change_home;
-extern const char *reply_550_failed_change_dir;
-extern const char *reply_550_failed_open_file;
+extern const char *const REPLY_500;
+extern const char *const REPLY_501;
+extern const char *const REPLY_501_MISSING_FILE_PATH;
+extern const char *const REPLY_530;
+extern const char *const REPLY_530_INVALID_USERNAME;
+extern const char *const REPLY_550;
+extern const char *const REPLY_550_FAILED_CHANGE_HOME;
+extern const char *const REPLY_550_FAILED_CHANGE_DIR;
+extern const char *const REPLY_550_FAILED_OPEN_FILE;
 
 #endif// FTP_REPLIES_H

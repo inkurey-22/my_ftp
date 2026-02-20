@@ -16,7 +16,7 @@
 static int check_logged_in(struct client_state_t *cstate)
 {
     if (!cstate || !cstate->logged_in) {
-        my_send(cstate ? cstate->fd : -1, reply_530, strlen(reply_530), 0);
+        my_send(cstate ? cstate->fd : -1, REPLY_530, strlen(REPLY_530), 0);
         return 0;
     }
     return 1;
@@ -44,7 +44,7 @@ static char *parse_path(char *buffer)
 static int validate_path(struct client_state_t *cstate, const char *path)
 {
     if (*path == '\0') {
-        my_send(cstate->fd, reply_501, strlen(reply_501), 0);
+        my_send(cstate->fd, REPLY_501, strlen(REPLY_501), 0);
         return 0;
     }
     return 1;
@@ -112,17 +112,17 @@ static void try_change_dir(struct ftp_server_s *server,
     char real[PATH_MAX];
 
     if (!resolve_path(server, cstate, path, &resolved)) {
-        my_send(cstate->fd, reply_550_failed_change_dir,
-            strlen(reply_550_failed_change_dir), 0);
+        my_send(cstate->fd, REPLY_550_FAILED_CHANGE_DIR,
+            strlen(REPLY_550_FAILED_CHANGE_DIR), 0);
         return;
     }
     if (canonicalize_and_validate(resolved.resolved, real, server)) {
         update_client_cwd(server, cstate, real);
-        my_send(cstate->fd, reply_250, strlen(reply_250), 0);
+        my_send(cstate->fd, REPLY_250, strlen(REPLY_250), 0);
         return;
     }
-    my_send(cstate->fd, reply_550_failed_change_dir,
-        strlen(reply_550_failed_change_dir), 0);
+    my_send(cstate->fd, REPLY_550_FAILED_CHANGE_DIR,
+        strlen(REPLY_550_FAILED_CHANGE_DIR), 0);
 }
 
 void ftp_cmd_cwd(struct ftp_server_s *server, struct client_state_t *cstate,
