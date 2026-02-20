@@ -6,6 +6,7 @@
 */
 
 #include "commands.h"
+#include "ftp_replies.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +43,6 @@ static int open_data_connection(struct client_state_t *cstate)
         data_fd = cstate->data_fd;
         cstate->data_fd = -1;
     }
-
     return data_fd;
 }
 
@@ -57,13 +57,15 @@ static void send_directory_listing(int data_fd)
     if (!dir) {
         return;
     }
-    while ((entry = readdir(dir)) != NULL) {
+    entry = readdir(dir);
+    while (entry != NULL) {
         if (stat(entry->d_name, &st) == 0) {
             snprintf(line, sizeof(line), "%c%s %5ld %s\r\n",
                 S_ISDIR(st.st_mode) ? 'd' : '-', entry->d_name,
                 (long) st.st_size, "");
             send(data_fd, line, strlen(line), 0);
         }
+        entry = readdir(dir);
     }
     closedir(dir);
 }
@@ -74,7 +76,7 @@ static int try_open_directory_and_respond(int client_fd, int data_fd)
 
     dir = opendir(".");
     if (!dir) {
-        my_send(client_fd, "550 Failed to open directory.\r\n", 32, 0);
+        my_send(client_fd, reply_550, strlen(reply_550), 0);
         if (data_fd >= 0)
             close(data_fd);
         return -1;
@@ -86,11 +88,11 @@ static int try_open_directory_and_respond(int client_fd, int data_fd)
 static int check_logged_in_and_data_conn(struct client_state_t *cstate)
 {
     if (!cstate || !cstate->logged_in) {
-        my_send(cstate ? cstate->fd : -1, "530 Not logged in.\r\n", 21, 0);
+        my_send(cstate ? cstate->fd : -1, reply_530, strlen(reply_530), 0);
         return -1;
     }
     if (check_data_connection(cstate) < 0) {
-        my_send(cstate->fd, "425 Use PASV or PORT first.\r\n", 29, 0);
+        my_send(cstate->fd, reply_425_use_pasv, strlen(reply_425_use_pasv), 0);
         return -1;
     }
     return 0;
@@ -98,11 +100,13 @@ static int check_logged_in_and_data_conn(struct client_state_t *cstate)
 
 static int prepare_data_connection(struct client_state_t *cstate)
 {
-    my_send(cstate->fd,
-        "150 File status okay; about to open data connection.\r\n", 49, 0);
-    int data_fd = open_data_connection(cstate);
+    int data_fd;
+
+    my_send(cstate->fd, reply_150, strlen(reply_150), 0);
+    data_fd = open_data_connection(cstate);
     if (data_fd < 0) {
-        my_send(cstate->fd, "425 Can't open data connection.\r\n", 34, 0);
+        my_send(cstate->fd, reply_425_cant_open_data,
+            strlen(reply_425_cant_open_data), 0);
         return -1;
     }
     return data_fd;
@@ -115,15 +119,12 @@ void ftp_cmd_list([[maybe_unused]] struct ftp_server_s *server,
 
     if (check_logged_in_and_data_conn(cstate) < 0)
         return;
-
     data_fd = prepare_data_connection(cstate);
     if (data_fd < 0)
         return;
-
     if (try_open_directory_and_respond(cstate->fd, data_fd) < 0)
         return;
-
     send_directory_listing(data_fd);
     close(data_fd);
-    my_send(cstate->fd, "226 Closing data connection.\r\n", 30, 0);
+    my_send(cstate->fd, reply_226, strlen(reply_226), 0);
 }

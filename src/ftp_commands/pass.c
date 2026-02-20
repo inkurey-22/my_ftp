@@ -8,6 +8,7 @@
 #include "client_state.h"
 #include "commands.h"
 #include "ftp.h"
+#include "ftp_replies.h"
 #include <string.h>
 
 static char *parse_password(char *buffer)
@@ -29,6 +30,29 @@ static char *parse_password(char *buffer)
     return password;
 }
 
+static void handle_login_success(struct ftp_server_s *server,
+    struct client_state_t *cstate)
+{
+    my_send(cstate->fd, reply_230, strlen(reply_230), 0);
+    cstate->logged_in = 1;
+    if (server && server->home_path) {
+        strncpy(cstate->real_cwd, server->home_path,
+            sizeof(cstate->real_cwd) - 1);
+        cstate->real_cwd[sizeof(cstate->real_cwd) - 1] = '\0';
+        strcpy(cstate->virt_cwd, "/");
+    } else {
+        strcpy(cstate->real_cwd, "/");
+        strcpy(cstate->virt_cwd, "/");
+    }
+}
+
+static void handle_login_failure(int fd)
+{
+    static char const *reply_530_login = "530 Login incorrect.\r\n";
+
+    my_send(fd, reply_530_login, strlen(reply_530_login), 0);
+}
+
 void ftp_cmd_pass([[maybe_unused]] struct ftp_server_s *server,
     struct client_state_t *cstate, char *buffer)
 {
@@ -36,18 +60,14 @@ void ftp_cmd_pass([[maybe_unused]] struct ftp_server_s *server,
     char *password;
 
     if (cstate == NULL) {
-        my_send(-1, "530 Login incorrect.\r\n",
-            strlen("530 Login incorrect.\r\n"), 0);
+        handle_login_failure(-1);
         return;
     }
     username = (cstate->username[0]) ? cstate->username : "Anonymous";
     password = parse_password(buffer);
     if (check_user_password(username, password)) {
-        my_send(cstate->fd, "230 User logged in, proceed.\r\n",
-            strlen("230 User logged in, proceed.\r\n"), 0);
-        cstate->logged_in = 1;
+        handle_login_success(server, cstate);
     } else {
-        my_send(cstate->fd, "530 Login incorrect.\r\n",
-            strlen("530 Login incorrect.\r\n"), 0);
+        handle_login_failure(cstate->fd);
     }
 }

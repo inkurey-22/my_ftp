@@ -23,7 +23,9 @@ struct client_state_t {
     char username[64];// Store last provided username
     int data_fd;      // Passive mode data connection fd, -1 if not open
     struct sockaddr_in active_addr;// Active mode address (PORT)
-    int active_mode;// 1 if active mode (PORT) is set, 0 otherwise
+    int active_mode;    // 1 if active mode (PORT) is set, 0 otherwise
+    char real_cwd[1024];// Actual server-side absolute path
+    char virt_cwd[1024];// Virtual path for display (starts at '/')
 };
 
 typedef struct client_state_t client_state_t;
