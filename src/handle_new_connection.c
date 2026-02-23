@@ -15,6 +15,7 @@ static void initialize_client_state(server_context_t *ctx, int i,
     int client_fd)
 {
     const char *greeting = "220 Service ready for new user.\r\n";
+
     ctx->client_states[i].fd = client_fd;
     ctx->client_states[i].buf_used = 0;
     ctx->client_states[i].logged_in = false;

@@ -7,6 +7,8 @@
 
 #include "commands.h"
 
+#include <unistd.h>
+
 const ftp_command_entry_t FTP_COMMANDS[] = {
     {"USER", ftp_cmd_user},
     {"PASS", ftp_cmd_pass},
@@ -17,6 +19,8 @@ const ftp_command_entry_t FTP_COMMANDS[] = {
     {"PASV", ftp_cmd_pasv},
     {"PORT", ftp_cmd_port},
     {"LIST", ftp_cmd_list},
+    {"CWD", ftp_cmd_cwd},
+    {"CDUP", ftp_cmd_cdup},
 };
 
 const int FTP_COMMANDS_COUNT =

@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 
 static int parse_port_params(const char *arg, struct sockaddr_in *out_addr)
 {

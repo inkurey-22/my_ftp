@@ -7,8 +7,10 @@
 
 #include "client_state.h"
 #include "ftp.h"
+#include "ftp_replies.h"
 #include <fcntl.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -35,22 +37,21 @@ static char *parse_filepath(char *buffer)
 static void send_transfer_error_and_close(int file_fd, int data_conn_fd,
     struct client_state_t *cstate)
 {
-    my_send(cstate->fd, "426 Connection closed; transfer aborted.\r\n", 41, 0);
+    my_send(cstate->fd, REPLY_426_TRANSFER_ABORTED,
+        strlen(REPLY_426_TRANSFER_ABORTED), 0);
     close(file_fd);
     close(data_conn_fd);
 }
 
 static void send_transfer_success(struct client_state_t *cstate)
 {
-    my_send(cstate->fd,
-        "226 Closing data connection."
-        " Requested file action successful.\r\n",
-        62, 0);
+    my_send(cstate->fd, REPLY_226, strlen(REPLY_226), 0);
 }
 
 static void send_transfer_failure(struct client_state_t *cstate)
 {
-    my_send(cstate->fd, "426 Connection closed; transfer aborted.\r\n", 41, 0);
+    my_send(cstate->fd, REPLY_426_TRANSFER_ABORTED,
+        strlen(REPLY_426_TRANSFER_ABORTED), 0);
 }
 
 static void handle_file_receive(int file_fd, int data_conn_fd,
@@ -78,7 +79,7 @@ static void handle_file_receive(int file_fd, int data_conn_fd,
 static int check_data_connection(struct client_state_t *cstate)
 {
     if (cstate->data_fd < 0) {
-        my_send(cstate->fd, "425 Use PASV first.\r\n", 24, 0);
+        my_send(cstate->fd, REPLY_425_USE_PASV, strlen(REPLY_425_USE_PASV), 0);
         return 0;
     }
     return 1;
@@ -90,7 +91,8 @@ static char *get_and_validate_filepath(struct client_state_t *cstate,
     char *filepath = parse_filepath(buffer);
 
     if (!filepath) {
-        my_send(cstate->fd, "501 Missing file path.\r\n", 25, 0);
+        my_send(cstate->fd, REPLY_501_MISSING_FILE_PATH,
+            strlen(REPLY_501_MISSING_FILE_PATH), 0);
         return NULL;
     }
     return filepath;
@@ -104,7 +106,8 @@ static int open_file_for_stor(struct client_state_t *cstate,
     if (file_fd < 0) {
         close(cstate->data_fd);
         cstate->data_fd = -1;
-        my_send(cstate->fd, "550 Failed to open file.\r\n", 27, 0);
+        my_send(cstate->fd, REPLY_550_FAILED_OPEN_FILE,
+            strlen(REPLY_550_FAILED_OPEN_FILE), 0);
         return -1;
     }
     return file_fd;
@@ -114,14 +117,14 @@ static int accept_data_connection(struct client_state_t *cstate, int file_fd)
 {
     int data_conn_fd;
 
-    my_send(cstate->fd,
-        "150 File status okay; about to open data connection.\r\n", 31, 0);
+    my_send(cstate->fd, REPLY_150, strlen(REPLY_150), 0);
     data_conn_fd = accept(cstate->data_fd, NULL, NULL);
     close(cstate->data_fd);
     cstate->data_fd = -1;
     if (data_conn_fd < 0) {
         close(file_fd);
-        my_send(cstate->fd, "425 Can't open data connection.\r\n", 34, 0);
+        my_send(cstate->fd, REPLY_425_CANT_OPEN_DATA,
+            strlen(REPLY_425_CANT_OPEN_DATA), 0);
         return -1;
     }
     return data_conn_fd;
