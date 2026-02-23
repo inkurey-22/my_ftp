@@ -12,15 +12,6 @@
 #include <string.h>
 #include <unistd.h>
 
-int check_data_connection(struct client_state_t *cstate)
-{
-    if (cstate->data_fd < 0) {
-        my_send(cstate->fd, REPLY_425_USE_PASV, strlen(REPLY_425_USE_PASV), 0);
-        return -1;
-    }
-    return 0;
-}
-
 int handle_filepath(struct client_state_t *cstate, char *buffer,
     char **filepath)
 {

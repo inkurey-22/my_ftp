@@ -61,4 +61,16 @@ void ftp_cmd_cdup(struct ftp_server_s *server, struct client_state_t *cstate,
 extern const ftp_command_entry_t FTP_COMMANDS[];
 extern const int FTP_COMMANDS_COUNT;
 
+typedef struct retr_transfer_ctx_s {
+    char *filepath;
+    int file_fd;
+    int data_conn_fd;
+} retr_transfer_ctx_t;
+
+typedef struct stor_transfer_ctx_s {
+    char *filepath;
+    int file_fd;
+    int data_conn_fd;
+} stor_transfer_ctx_t;
+
 #endif /* FTP_COMMANDS_H */

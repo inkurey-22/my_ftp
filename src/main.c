@@ -7,10 +7,20 @@
 
 #include "ftp.h"
 
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+static void sigchld_handler([[maybe_unused]] int signo)
+{
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        usleep(500);
+    }
+}
 
 void print_usage(const char *prog)
 {
@@ -42,23 +52,45 @@ int8_t parse_args(int ac, char **av, struct ftp_server_s *server)
     return 0;
 }
 
-int main(int ac, char **av)
+static void setup_sigchld(void)
 {
-    struct ftp_server_s server = {0};
-    int8_t ret;
-    uint8_t parse_result = parse_args(ac, av, &server);
+    struct sigaction sa = {0};
 
+    sa.sa_handler = sigchld_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    sigaction(SIGCHLD, &sa, NULL);
+}
+
+static int handle_parse_result(uint8_t parse_result)
+{
     switch (parse_result) {
         case 1:
             return 0;
         case 2:
             return 84;
         default:
-            break;
+            return -1;
     }
+}
+
+static int run_ftp_server(int ac, char **av)
+{
+    struct ftp_server_s server = {0};
+    int8_t ret;
+    uint8_t parse_result = parse_args(ac, av, &server);
+    int parse_status = handle_parse_result(parse_result);
+
+    if (parse_status != -1)
+        return parse_status;
     ret = launch_server(&server);
-    if (server.home_path) {
+    if (server.home_path)
         free(server.home_path);
-    }
     return ret;
+}
+
+int main(int ac, char **av)
+{
+    setup_sigchld();
+    return run_ftp_server(ac, av);
 }
