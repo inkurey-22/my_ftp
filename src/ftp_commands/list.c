@@ -24,7 +24,7 @@ void ftp_cmd_list([[maybe_unused]] struct ftp_server_s *server,
     if (data_fd < 0)
         return;
     arg = parse_list_arg(buffer);
-    target = arg ? arg : ".";
+    target = arg ? arg : cstate->real_cwd;
     handle_list_logic(data_fd, target, arg);
     close(data_fd);
     my_send(cstate->fd, REPLY_226, strlen(REPLY_226), 0);
