@@ -14,6 +14,15 @@ fn enter_pasv(
     parse_pasv(line)
 }
 
+fn send_and_read(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut String, cmd: &str) {
+    let cmd_with_crlf = format!("{}\r\n", cmd.trim());
+    writer.write_all(cmd_with_crlf.as_bytes()).unwrap();
+    writer.flush().unwrap();
+    line.clear();
+    reader.read_line(line).unwrap();
+    println!("Server: {}", line.trim());
+}
+
 pub fn command_loop(mut reader: impl BufRead, mut writer: TcpStream) {
     let mut line = String::new();
 
@@ -64,11 +73,7 @@ pub fn command_loop(mut reader: impl BufRead, mut writer: TcpStream) {
 }
 
 fn handle_quit(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut String) {
-    writer.write_all(b"QUIT\r\n").unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    send_and_read(reader, writer, line, "QUIT");
     println!("Goodbye!");
 }
 
@@ -83,12 +88,8 @@ fn handle_dele(
         return;
     }
 
-    let dele_cmd = format!("DELE {}\r\n", args[1]);
-    writer.write_all(dele_cmd.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    let dele_cmd = format!("DELE {}", args[1]);
+    send_and_read(reader, writer, line, &dele_cmd);
 }
 
 fn handle_put(
@@ -111,12 +112,8 @@ fn handle_put(
         }
     };
 
-    let stor_cmd = format!("STOR {}\r\n", filename);
-    writer.write_all(stor_cmd.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    let stor_cmd = format!("STOR {}", filename);
+    send_and_read(reader, writer, line, &stor_cmd);
 
     if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
         if let Ok(mut file) = std::fs::File::open(filename) {
@@ -154,12 +151,8 @@ fn handle_get(
         }
     };
 
-    let retr_cmd = format!("RETR {}\r\n", filename);
-    writer.write_all(retr_cmd.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    let retr_cmd = format!("RETR {}", filename);
+    send_and_read(reader, writer, line, &retr_cmd);
 
     if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
         if let Ok(mut file) = std::fs::File::create(filename) {
@@ -192,15 +185,11 @@ fn handle_ls(
     };
 
     let list_cmd = if args.len() > 1 {
-        format!("LIST {}\r\n", args[1])
+        format!("LIST {}", args[1])
     } else {
-        "LIST\r\n".to_string()
+        "LIST".to_string()
     };
-    writer.write_all(list_cmd.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    send_and_read(reader, writer, line, &list_cmd);
 
     if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
         let mut data = String::new();
@@ -226,41 +215,23 @@ fn handle_cd(
         return;
     }
 
-    let cwd_cmd = format!("CWD {}\r\n", args[1]);
-    writer.write_all(cwd_cmd.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    let cwd_cmd = format!("CWD {}", args[1]);
+    send_and_read(reader, writer, line, &cwd_cmd);
 }
 
 fn handle_cdup(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut String) {
-    writer.write_all(b"CDUP\r\n").unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    send_and_read(reader, writer, line, "CDUP");
 }
 
 fn handle_pwd(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut String) {
-    writer.write_all(b"PWD\r\n").unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    send_and_read(reader, writer, line, "PWD");
 }
 
 fn handle_unknown(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut String, cmd: &str) {
-    let cmd_with_crlf = format!("{}\r\n", cmd.trim());
-    writer.write_all(cmd_with_crlf.as_bytes()).unwrap();
-    writer.flush().unwrap();
-    line.clear();
-    reader.read_line(line).unwrap();
-    println!("Server: {}", line.trim());
+    send_and_read(reader, writer, line, cmd);
 }
 
 fn parse_pasv(line: &str) -> Option<String> {
-    // Example: 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2).
     let start = line.find('(')?;
     let end = line.find(')')?;
     let nums: Vec<&str> = line[start + 1..end].split(',').collect();
@@ -270,5 +241,4 @@ fn parse_pasv(line: &str) -> Option<String> {
     let ip = format!("{}.{}.{}.{}", nums[0], nums[1], nums[2], nums[3]);
     let port = nums[4].parse::<u16>().ok()? * 256 + nums[5].parse::<u16>().ok()?;
     Some(format!("{}:{}", ip, port))
-    // ...existing code...
 }
