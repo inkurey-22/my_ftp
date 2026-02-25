@@ -7,9 +7,7 @@
 
 #include "ftp.h"
 
-#include "sigint_handler.h"
-#include <fcntl.h>
-#include <stdbool.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,60 +77,20 @@ static int handle_parse_result(uint8_t parse_result)
 static int run_ftp_server(int ac, char **av)
 {
     struct ftp_server_s server = {0};
-    int8_t ret = 0;
+    int8_t ret;
     uint8_t parse_result = parse_args(ac, av, &server);
     int parse_status = handle_parse_result(parse_result);
 
-    if (parse_status != -1) {
-        if (server.home_path)
-            free(server.home_path);
+    if (parse_status != -1)
         return parse_status;
-    }
     ret = launch_server(&server);
     if (server.home_path)
         free(server.home_path);
     return ret;
 }
 
-static void setup_fixed_pipe(void)
-{
-    int fixed_pipefd[2] = {100, 101};
-    int flags = 0;
-
-    if (dup2(fixed_pipefd[0], 100) == -1 || dup2(fixed_pipefd[1], 101) == -1) {
-        if (pipe(fixed_pipefd) == -1) {
-            perror("pipe");
-            exit(1);
-        }
-        if (dup2(fixed_pipefd[0], 100) == -1
-            || dup2(fixed_pipefd[1], 101) == -1) {
-            perror("dup2");
-            exit(1);
-        }
-        close(fixed_pipefd[0]);
-        close(fixed_pipefd[1]);
-    }
-    flags = fcntl(100, F_GETFL, 0);
-    fcntl(100, F_SETFL, flags | O_NONBLOCK);
-}
-
-static pid_t fork_and_run_server(int ac, char **av)
-{
-    pid_t child = fork();
-
-    if (child == 0) {
-        exit(run_ftp_server(ac, av));
-    }
-    return child;
-}
-
 int main(int ac, char **av)
 {
-    pid_t child = 0;
-
     setup_sigchld();
-    setup_fixed_pipe();
-    setup_sigint_handler();
-    child = fork_and_run_server(ac, av);
-    return handle_sigint_loop(child);
+    return run_ftp_server(ac, av);
 }

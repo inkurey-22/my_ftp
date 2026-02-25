@@ -34,6 +34,7 @@ static void retr_child(retr_transfer_ctx_t *ctx, struct client_state_t *cstate)
     int transfer_result =
         send_file_over_data_conn(ctx->file_fd, ctx->data_conn_fd);
 
+    // Signal EOF to client before closing socket
     shutdown(ctx->data_conn_fd, SHUT_WR);
     close(ctx->file_fd);
     close(ctx->data_conn_fd);
