@@ -15,6 +15,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+static void sigint_handler([[maybe_unused]] int signo)
+{
+    exit(0);
+}
+
 static void sigchld_handler([[maybe_unused]] int signo)
 {
     while (waitpid(-1, NULL, WNOHANG) > 0) {
@@ -62,6 +67,16 @@ static void setup_sigchld(void)
     sigaction(SIGCHLD, &sa, NULL);
 }
 
+static void setup_sigint(void)
+{
+    struct sigaction sa = {0};
+
+    sa.sa_handler = sigint_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+}
+
 static int handle_parse_result(uint8_t parse_result)
 {
     switch (parse_result) {
@@ -92,5 +107,6 @@ static int run_ftp_server(int ac, char **av)
 int main(int ac, char **av)
 {
     setup_sigchld();
+    setup_sigint();
     return run_ftp_server(ac, av);
 }

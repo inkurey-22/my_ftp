@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_C_COMPILER clang)
+set(CMAKE_C_COMPILER epiclang)
 
 project(myftp LANGUAGES C)
 
