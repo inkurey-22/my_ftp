@@ -19,9 +19,7 @@ pipeline {
             sh '''bash -c "
 set -euo pipefail
 cd ${WORKSPACE}
-make fclean
-make
-make clean
+make re
 "'''
           }
         }

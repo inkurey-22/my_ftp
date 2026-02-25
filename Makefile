@@ -19,7 +19,7 @@ $(BUILD_DIR)/Makefile: CMakeLists.txt
 	cd $(BUILD_DIR) && cmake ..
 
 clean:
-	@if [ -d $(BUILD_DIR) ]; then $(MAKE) -C $(BUILD_DIR) clean; fi
+	@echo "Cleaning build artifacts..."
 
 fclean: clean
 	rm -rf $(BUILD_DIR)
