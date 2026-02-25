@@ -18,8 +18,10 @@ pipeline {
           docker.image(env.CONTAINER).inside('-i') {
             sh '''bash -c "
 set -euo pipefail
+cd ${WORKSPACE}
 make fclean
 make
+make clean
 "'''
           }
         }
