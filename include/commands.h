@@ -42,6 +42,8 @@ void ftp_cmd_retr(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
 void ftp_cmd_stor(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
+void ftp_cmd_dele(struct ftp_server_s *server, struct client_state_t *cstate,
+    char *buffer);
 
 // void ftp_cmd_putr(struct ftp_server_s *server, struct client_state_t *cstate,
 //     char *buffer);
@@ -56,6 +58,9 @@ void ftp_cmd_port(struct ftp_server_s *server, struct client_state_t *cstate,
 void ftp_cmd_cwd(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
 void ftp_cmd_cdup(struct ftp_server_s *server, struct client_state_t *cstate,
+    char *buffer);
+
+void ftp_cmd_noop(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
 
 extern const ftp_command_entry_t FTP_COMMANDS[];

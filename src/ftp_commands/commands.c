@@ -21,6 +21,8 @@ const ftp_command_entry_t FTP_COMMANDS[] = {
     {"LIST", ftp_cmd_list},
     {"CWD", ftp_cmd_cwd},
     {"CDUP", ftp_cmd_cdup},
+    {"NOOP", ftp_cmd_noop},
+    {"DELE", ftp_cmd_dele},
 };
 
 const int FTP_COMMANDS_COUNT =

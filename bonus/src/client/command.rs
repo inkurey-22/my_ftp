@@ -53,6 +53,9 @@ pub fn command_loop(mut reader: impl BufRead, mut writer: TcpStream) {
             "pwd" => {
                 handle_pwd(&mut reader, &mut writer, &mut line);
             }
+            "rm" => {
+                handle_dele(&mut reader, &mut writer, &mut line, args);
+            }
             _ => {
                 handle_unknown(&mut reader, &mut writer, &mut line, &cmd);
             }
@@ -67,6 +70,25 @@ fn handle_quit(reader: &mut impl BufRead, writer: &mut TcpStream, line: &mut Str
     reader.read_line(line).unwrap();
     println!("Server: {}", line.trim());
     println!("Goodbye!");
+}
+
+fn handle_dele(
+    reader: &mut impl BufRead,
+    writer: &mut TcpStream,
+    line: &mut String,
+    args: Vec<&str>,
+) {
+    if args.len() < 2 {
+        println!("Usage: rm <filename>");
+        return;
+    }
+
+    let dele_cmd = format!("DELE {}\r\n", args[1]);
+    writer.write_all(dele_cmd.as_bytes()).unwrap();
+    writer.flush().unwrap();
+    line.clear();
+    reader.read_line(line).unwrap();
+    println!("Server: {}", line.trim());
 }
 
 fn handle_put(
