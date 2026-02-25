@@ -20,7 +20,6 @@ pipeline {
 set -euo pipefail
 make fclean
 make
-make clean
 "'''
           }
         }
