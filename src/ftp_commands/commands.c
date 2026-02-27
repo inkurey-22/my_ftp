@@ -23,6 +23,7 @@ const ftp_command_entry_t FTP_COMMANDS[] = {
     {"CDUP", ftp_cmd_cdup},
     {"NOOP", ftp_cmd_noop},
     {"DELE", ftp_cmd_dele},
+    {"HELP", ftp_cmd_help},
 };
 
 const int FTP_COMMANDS_COUNT =

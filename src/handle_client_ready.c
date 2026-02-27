@@ -7,7 +7,9 @@
 
 #include "handle_client_ready.h"
 #include "ftp.h"
+#include "ftp_replies.h"
 #include "ftp_server_poll_internals.h"
+#include <string.h>
 #include <unistd.h>
 
 void handle_client_ready(client_context_t *ctx)
@@ -22,7 +24,7 @@ void handle_client_ready(client_context_t *ctx)
     c->buffer[n] = '\0';
     cmd_result = handle_command(ctx->server, c);
     if (cmd_result == 0) {
-        my_send(c->fd, "502 Command not implemented.\r\n", 31, 0);
+        my_send(c->fd, REPLY_500, strlen(REPLY_500), 0);
     } else if (cmd_result == 2) {
         close_and_reset_client(c, ctx->pfds, ctx->idx);
     }

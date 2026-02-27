@@ -7,6 +7,7 @@
 
 #include "commands.h"
 #include "ftp.h"
+#include "ftp_replies.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ static void handle_ftp_command(struct ftp_server_s *server, int client_fd,
     client_state.fd = client_fd;
     client_state.logged_in = logged_in ? *logged_in : 0;
     if (!find_and_execute_command(server, buffer, logged_in, &client_state)) {
-        my_send(client_fd, "502 Command not implemented.\r\n", 31, 0);
+        my_send(client_fd, REPLY_500, strlen(REPLY_500), 0);
     }
 }
 
