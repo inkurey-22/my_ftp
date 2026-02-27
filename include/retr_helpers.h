@@ -10,7 +10,16 @@
     #define RETR_HELPERS_H
 
     #include "client_state.h"
+    #include "commands.h"
 // clang-format on
+
+typedef struct retr_check_args_s {
+    struct ftp_server_s *server;
+    struct client_state_t *cstate;
+    char *buffer;
+    resolved_path_t *resolved;
+    char **filepath;
+} retr_check_args_t;
 
 int write_all(int fd, const char *buf, size_t count);
 int send_file_over_data_conn(int file_fd, int data_conn_fd);

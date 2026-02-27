@@ -6,6 +6,7 @@
 */
 
 #include "client_state.h"
+#include "commands.h"
 #include "ftp.h"
 #include "ftp_replies.h"
 #include <string.h>
@@ -29,8 +30,34 @@ static char *parse_dele_filepath(char *buffer)
     return filepath;
 }
 
-void ftp_cmd_dele([[maybe_unused]] struct ftp_server_s *server,
-    struct client_state_t *cstate, char *buffer)
+static void resolve_dele_path(struct ftp_server_s *server,
+    struct client_state_t *cstate, const char *filepath,
+    resolved_path_t *resolved)
+{
+    if (filepath[0] == '/') {
+        snprintf(resolved->resolved, sizeof(resolved->resolved), "%s%s",
+            server->home_path, filepath);
+    } else {
+        snprintf(resolved->resolved, sizeof(resolved->resolved), "%s/%s",
+            cstate->real_cwd, filepath);
+    }
+}
+
+static void handle_file_deletion(struct ftp_server_s *server,
+    struct client_state_t *cstate, const char *filepath)
+{
+    resolved_path_t resolved;
+
+    resolve_dele_path(server, cstate, filepath, &resolved);
+    if (unlink(resolved.resolved) == 0) {
+        my_send(cstate->fd, REPLY_250, strlen(REPLY_250), 0);
+    } else {
+        my_send(cstate->fd, REPLY_550, strlen(REPLY_550), 0);
+    }
+}
+
+void ftp_cmd_dele(struct ftp_server_s *server, struct client_state_t *cstate,
+    char *buffer)
 {
     char *filepath;
 
@@ -44,9 +71,9 @@ void ftp_cmd_dele([[maybe_unused]] struct ftp_server_s *server,
             strlen(REPLY_501_MISSING_FILE_PATH), 0);
         return;
     }
-    if (unlink(filepath) == 0) {
-        my_send(cstate->fd, REPLY_250, strlen(REPLY_250), 0);
-    } else {
+    if (!server || !cstate) {
         my_send(cstate->fd, REPLY_550, strlen(REPLY_550), 0);
+        return;
     }
+    handle_file_deletion(server, cstate, filepath);
 }

@@ -7,6 +7,7 @@
 
 #include "client_state.h"
 #include "ftp.h"
+#include "ftp_replies.h"
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
@@ -45,12 +46,11 @@ void ftp_cmd_port([[maybe_unused]] struct ftp_server_s *server,
     while (*arg == ' ' || *arg == '\t')
         arg++;
     if (parse_port_params(arg, &data_addr) < 0) {
-        my_send(cstate->fd, "501 Syntax error in parameters or arguments.\r\n",
-            44, 0);
+        my_send(cstate->fd, REPLY_501, strlen(REPLY_501), 0);
         return;
     }
     cstate->data_fd = -1;
     cstate->active_addr = data_addr;
     cstate->active_mode = 1;
-    my_send(cstate->fd, "200 Command okay.\r\n", 18, 0);
+    my_send(cstate->fd, REPLY_200, strlen(REPLY_200), 0);
 }
