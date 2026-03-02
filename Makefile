@@ -9,7 +9,7 @@
 # Makefile to call CMake
 BUILD_DIR = build
 
-.PHONY: all clean fclean re run
+.PHONY: all clean fclean re run bonus
 
 all: $(BUILD_DIR)/Makefile
 	$(MAKE) -C $(BUILD_DIR)
@@ -23,5 +23,9 @@ clean:
 
 fclean: clean
 	rm -rf $(BUILD_DIR)
+	rm -rf bonus/target
 
-re: fclean all
+re: fclean all bonus
+
+bonus:
+	cd bonus && cargo build --release

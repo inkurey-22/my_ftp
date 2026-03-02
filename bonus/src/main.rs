@@ -3,6 +3,7 @@ use std::net::TcpStream;
 use std::process;
 
 mod client;
+use client::mode::FtpMode;
 use client::start_client;
 
 fn print_usage_and_exit(program: &str) -> ! {
@@ -44,5 +45,5 @@ fn connect_to_server(host: &str, port: u16) -> TcpStream {
 fn main() {
     let (host, port) = parse_args();
     let stream = connect_to_server(&host, port);
-    start_client(stream);
+    start_client(stream, FtpMode::Active);
 }
