@@ -25,7 +25,7 @@ fclean: clean
 	rm -rf $(BUILD_DIR)
 	rm -rf bonus/target
 
-re: fclean all bonus
+re: fclean all
 
 bonus:
 	cd bonus && cargo build --release
