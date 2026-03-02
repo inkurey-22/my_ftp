@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 static int parse_port_params(const char *arg, struct sockaddr_in *out_addr)
 {
@@ -49,6 +50,8 @@ void ftp_cmd_port([[maybe_unused]] struct ftp_server_s *server,
         my_send(cstate->fd, REPLY_501, strlen(REPLY_501), 0);
         return;
     }
+    if (cstate->data_fd > 0)
+        close(cstate->data_fd);
     cstate->data_fd = -1;
     cstate->active_addr = data_addr;
     cstate->active_mode = 1;

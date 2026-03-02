@@ -83,6 +83,10 @@ void ftp_cmd_pasv(struct ftp_server_s *server, struct client_state_t *cstate,
         my_send(cstate->fd, "425 Can't open data connection.\r\n", 34, 0);
         return;
     }
+    if (cstate->data_fd > 0)
+        close(cstate->data_fd);
     cstate->data_fd = data_fd;
+    cstate->active_mode = 0;
+    memset(&cstate->active_addr, 0, sizeof(cstate->active_addr));
     send_pasv_reply(cstate, &data_addr);
 }

@@ -31,14 +31,14 @@ const char *const REPLY_257 = "257 \"PATHNAME\" created.\r\n";
 const char *const REPLY_331 = "331 User name okay, need password.\r\n";
 const char *const REPLY_332 = "332 Need account for login.\r\n";
 
-// 4xx: Transient Negative Completion reply (custom/extended)
+// 4xx: Transient Negative Completion reply
 const char *const REPLY_425_USE_PASV = "425 Use PASV first.\r\n";
 const char *const REPLY_425_CANT_OPEN_DATA =
     "425 Can't open data connection.\r\n";
 const char *const REPLY_426_TRANSFER_ABORTED =
     "426 Connection closed; transfer aborted.\r\n";
 
-// 5xx: Error replies (RFC compliant, generic and custom)
+// 5xx: Error replies
 const char *const REPLY_500 = "500 Syntax error, command unrecognized.\r\n";
 const char *const REPLY_501 =
     "501 Syntax error in parameters or arguments.\r\n";
