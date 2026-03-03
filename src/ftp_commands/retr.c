@@ -8,6 +8,7 @@
 #include "commands.h"
 #include "ftp.h"
 #include "ftp_replies.h"
+#include "list_helpers.h"
 #include "retr_helpers.h"
 #include <stdlib.h>
 #include <string.h>
@@ -53,6 +54,19 @@ static int retr_check_path_and_open(struct ftp_server_s *server,
     return 0;
 }
 
+static int retr_open_data_connection(struct client_state_t *cstate,
+    retr_transfer_ctx_t *ctx)
+{
+    ctx->data_conn_fd = open_data_connection(cstate);
+    if (ctx->data_conn_fd < 0) {
+        close(ctx->file_fd);
+        my_send(cstate->fd, REPLY_425_CANT_OPEN_DATA,
+            strlen(REPLY_425_CANT_OPEN_DATA), 0);
+        return -1;
+    }
+    return 0;
+}
+
 static int retr_prepare(struct ftp_server_s *server,
     struct client_state_t *cstate, char *buffer, retr_transfer_ctx_t *ctx)
 {
@@ -70,7 +84,7 @@ static int retr_prepare(struct ftp_server_s *server,
     if (retr_check_path_and_open(server, cstate, ctx) < 0)
         return -1;
     my_send(cstate->fd, REPLY_150, strlen(REPLY_150), 0);
-    if (handle_accept_data_conn(cstate, ctx->file_fd, &ctx->data_conn_fd) < 0)
+    if (retr_open_data_connection(cstate, ctx) < 0)
         return -1;
     return 0;
 }

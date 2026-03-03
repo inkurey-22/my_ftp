@@ -62,6 +62,8 @@ void ftp_cmd_noop(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
 void ftp_cmd_help(struct ftp_server_s *server, struct client_state_t *cstate,
     char *buffer);
+void ftp_cmd_syst(struct ftp_server_s *server, struct client_state_t *cstate,
+    char *buffer);
 
 extern const ftp_command_entry_t FTP_COMMANDS[];
 extern const int FTP_COMMANDS_COUNT;

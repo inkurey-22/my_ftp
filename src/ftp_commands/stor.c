@@ -9,6 +9,7 @@
 #include "commands.h"
 #include "ftp.h"
 #include "ftp_replies.h"
+#include "list_helpers.h"
 #include "stor_helpers.h"
 #include <fcntl.h>
 #include <stdlib.h>
@@ -37,16 +38,8 @@ static char *parse_filepath(char *buffer)
     return filepath;
 }
 
-static int check_data_connection(struct client_state_t *cstate)
-{
-    if (cstate->data_fd < 0) {
-        my_send(cstate->fd, REPLY_425_USE_PASV, strlen(REPLY_425_USE_PASV), 0);
-        return 0;
-    }
-    return 1;
-}
+char *resolve_filepath(const char *home_path, const char *cwd,
 
-static char *resolve_filepath(const char *home_path, const char *cwd,
     const char *filepath)
 {
     char *resolved = NULL;
@@ -87,8 +80,6 @@ static int open_file_for_stor(struct client_state_t *cstate,
     int file_fd = open(filepath, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 
     if (file_fd < 0) {
-        close(cstate->data_fd);
-        cstate->data_fd = -1;
         my_send(cstate->fd, REPLY_550_FAILED_OPEN_FILE,
             strlen(REPLY_550_FAILED_OPEN_FILE), 0);
         return -1;
@@ -96,43 +87,41 @@ static int open_file_for_stor(struct client_state_t *cstate,
     return file_fd;
 }
 
-static int accept_data_connection(struct client_state_t *cstate, int file_fd)
+static int cleanup_after_file_open_failure(stor_transfer_ctx_t *ctx)
 {
-    int data_conn_fd;
+    free(ctx->filepath);
+    ctx->filepath = NULL;
+    return -1;
+}
 
-    my_send(cstate->fd, REPLY_150, strlen(REPLY_150), 0);
-    data_conn_fd = accept(cstate->data_fd, NULL, NULL);
-    close(cstate->data_fd);
-    cstate->data_fd = -1;
-    if (data_conn_fd < 0) {
-        close(file_fd);
-        my_send(cstate->fd, REPLY_425_CANT_OPEN_DATA,
-            strlen(REPLY_425_CANT_OPEN_DATA), 0);
-        return -1;
-    }
-    return data_conn_fd;
+static int cleanup_after_data_conn_failure(struct client_state_t *cstate,
+    stor_transfer_ctx_t *ctx)
+{
+    close(ctx->file_fd);
+    my_send(cstate->fd, REPLY_425_CANT_OPEN_DATA,
+        strlen(REPLY_425_CANT_OPEN_DATA), 0);
+    free(ctx->filepath);
+    ctx->filepath = NULL;
+    return -1;
 }
 
 static int stor_prepare(struct ftp_server_s *server,
     struct client_state_t *cstate, char *buffer, stor_transfer_ctx_t *ctx)
 {
-    if (!check_data_connection(cstate))
+    if (check_data_connection(cstate) < 0) {
+        my_send(cstate->fd, REPLY_425_USE_PASV, strlen(REPLY_425_USE_PASV), 0);
         return -1;
+    }
     ctx->filepath = get_and_validate_filepath(server, cstate, buffer);
     if (!ctx->filepath)
         return -1;
     ctx->file_fd = open_file_for_stor(cstate, ctx->filepath);
-    if (ctx->file_fd < 0) {
-        free(ctx->filepath);
-        ctx->filepath = NULL;
-        return -1;
-    }
-    ctx->data_conn_fd = accept_data_connection(cstate, ctx->file_fd);
-    if (ctx->data_conn_fd < 0) {
-        free(ctx->filepath);
-        ctx->filepath = NULL;
-        return -1;
-    }
+    if (ctx->file_fd < 0)
+        return cleanup_after_file_open_failure(ctx);
+    my_send(cstate->fd, REPLY_150, strlen(REPLY_150), 0);
+    ctx->data_conn_fd = open_data_connection(cstate);
+    if (ctx->data_conn_fd < 0)
+        return cleanup_after_data_conn_failure(cstate, ctx);
     return 0;
 }
 
