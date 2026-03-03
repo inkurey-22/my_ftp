@@ -2,7 +2,7 @@
 
 ## Overview
 my_ftp is a custom FTP server and client implementation supporting standard FTP commands, user authentication, and file transfer operations. The project includes a server written in C, mandatory for the school project, and a Rust client as bonus.
-Server goal is to comply with RFC959 (yes it is VERY old).
+Server goal is to comply with RFC959 (yes it is VERY old, from 1985).
 
 ## Features
 - FTP server with support for commands: USER, PASS, LIST, RETR, STOR, CWD, CDUP, PWD, QUIT, PASV, PORT
@@ -23,7 +23,6 @@ my_ftp/
 │   └── utilities/         # Utility functions
 ├── include/               # Header files
 ├── ftp_commands/          # Additional command sources
-├── example/               # Example server implementation (C)
 └── bonus/                 # Bonus Rust client implementation
     ├── Cargo.toml         # Rust package config
     └── src/               # Rust source files
@@ -31,19 +30,13 @@ my_ftp/
 
 ## Building
 ### C Server
-1. **Using CMake:**
-   ```sh
-   mkdir build && cd build
-   cmake ..
-   make
-   ```
-2. **Using Makefile:**
-   ```sh
-   make
-   ```
+From project root:
+```
+make
+```
 
 ### Rust Client
-1. Navigate to `bonus/`:
+Navigate to `bonus/`:
    ```sh
    cd bonus
    cargo build --release
@@ -65,15 +58,12 @@ my_ftp/
 - Supports put, get, ls, cd, cdup.
 
 ## Usage
-- Connect to the FTP server using the Rust client or telnet/netcat. Other clients won't work because subject requires the use of RETR/STOR from RFC959. These commands aren't standard for GNU ftp, FileZilla or other clients. 
+- Connect to the FTP server using the Rust client or telnet/netcat. Other clients won't work because subject requires the use of RETR/STOR from RFC959. These commands aren't standard for GNU ftp, FileZilla or other modern clients.
 - Authenticate using credentials from `userdb.txt`. (Anonymous has empty password).
-- Use FTP commands to interact with the server (see supported commands above).
+- Use FTP commands to interact with the server (see supported commands above) or standard put/get/ls/cd/cdup/rm if using the custom rust client.
 
 ## License
 This project is licensed under EUPL 1.2. See LICENSE for details. 
 
 ## Authors
 - Myself, Théophile R.
-
-## Contact
-For questions or contributions, please open an issue or pull request.
