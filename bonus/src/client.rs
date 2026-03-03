@@ -13,10 +13,12 @@ use mode::FtpMode;
 use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 
+use crate::client::util::send_and_read;
+
 pub fn start_client(stream: TcpStream, mode: FtpMode) {
     let mut reader = BufReader::new(stream.try_clone().expect("Failed to clone stream"));
     let mut line = String::new();
-    let writer = stream;
+    let mut writer = stream;
 
     if let Err(e) = reader.read_line(&mut line) {
         eprintln!("Failed to read from server: {}", e);
@@ -27,6 +29,8 @@ pub fn start_client(stream: TcpStream, mode: FtpMode) {
         eprintln!("Unexpected server response: {}", line.trim());
         return;
     }
+
+    send_and_read(&mut reader, &mut writer, &mut line, "SYST");
 
     match login(reader, writer) {
         Some((reader, writer)) => {

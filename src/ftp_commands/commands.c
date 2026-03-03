@@ -24,6 +24,7 @@ const ftp_command_entry_t FTP_COMMANDS[] = {
     {"NOOP", ftp_cmd_noop},
     {"DELE", ftp_cmd_dele},
     {"HELP", ftp_cmd_help},
+    {"SYST", ftp_cmd_syst},
 };
 
 const int FTP_COMMANDS_COUNT =
