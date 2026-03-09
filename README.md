@@ -36,30 +36,29 @@ make
 ```
 
 ### Rust Client
-Navigate to `bonus/`:
-   ```sh
-   cd bonus
-   cargo build --release
-   ```
+From project root:   
+```sh
+make bonus
+```
 
 ## Running
 ### C Server
 - After building, run the server:
   ```sh
-  ./build/myftp <port> <home-directory>
+  ./myftp <port> <home-directory>
   ```
 
 ### Rust Client
 - After building, run the client:
   ```sh
-  ./target/release/bonus <ip/hostname> [port]
+  ./bonus/target/release/bonus <ip/hostname> [port]
   ```
 - Default port is 21 if not specified
 - Supports put, get, ls, cd, cdup.
 
 ## Usage
 - Connect to the FTP server using the Rust client or telnet/netcat. Other clients won't work because subject requires the use of RETR/STOR from RFC959. These commands aren't standard for GNU ftp, FileZilla or other modern clients.
-- Authenticate using credentials from `userdb.txt`. (Anonymous has empty password).
+- Authenticate using credentials from `userdb.txt`. (Anonymous has **empty** password (not any password, **empty**).
 - Use FTP commands to interact with the server (see supported commands above) or standard put/get/ls/cd/cdup/rm if using the custom rust client.
 
 ## License
