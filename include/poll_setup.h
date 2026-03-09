@@ -25,24 +25,26 @@ typedef struct poll_setup_s {
 } poll_setup_t;
 
 typedef struct {
-    int nfds;
     struct pollfd **pfds;
     client_state_t **client_states;
+    int nfds;
+    int pad;
 } poll_alloc_t;
 
 typedef struct {
     struct pollfd *pfds;
     client_state_t *client_states;
-    int nfds;
     int server_fd;
+    int nfds;
 } poll_init_t;
 
 typedef struct {
-    server_context_t *ctx;
-    struct ftp_server_s *server;
     struct pollfd *pfds;
     client_state_t *client_states;
+    server_context_t *ctx;
+    struct ftp_server_s *server;
     int nfds;
+    int pad;
 } ctx_fill_t;
 
 #endif// POLL_SETUP_H

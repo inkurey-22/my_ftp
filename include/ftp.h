@@ -17,10 +17,11 @@
 // clang-format on
 
 struct ftp_server_s {
-    uint16_t port;
-    int fd;
     char *home_path;
     FILE *log_file;
+    int fd;
+    uint16_t port;
+    uint16_t pad;
 };
 
 int8_t launch_server(struct ftp_server_s *server);

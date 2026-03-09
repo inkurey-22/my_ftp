@@ -15,18 +15,19 @@
 // clang-format on
 
 typedef struct {
-    struct ftp_server_s *server;
-    int listen_fd;
     struct pollfd *pfds;
     client_state_t *client_states;
+    struct ftp_server_s *server;
+    int listen_fd;
     int nfds;
 } server_context_t;
 
 typedef struct {
-    struct ftp_server_s *server;
-    int idx;
     struct pollfd *pfds;
     client_state_t *client_states;
+    struct ftp_server_s *server;
+    int idx;
+    int pad;
 } client_context_t;
 
 #endif /* SERVER_CONTEXT_H */

@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_C_COMPILER clang)
@@ -16,6 +15,6 @@ set_target_properties(myftp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_
 
 target_include_directories(myftp PRIVATE include)
 
-target_compile_options(myftp PRIVATE -Wall -Wextra)
+target_compile_options(myftp PRIVATE -Wall -Wextra -Wpadded)
 
 target_link_options(myftp PRIVATE -lssl -lcrypto)
