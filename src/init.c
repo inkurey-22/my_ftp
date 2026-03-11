@@ -47,7 +47,7 @@ static int bind_server_socket(int sockfd, uint16_t port)
 
 static int listen_server_socket(int sockfd)
 {
-    if (listen(sockfd, 5) < 0)
+    if (listen(sockfd, 32) < 0)
         return -1;
     return 0;
 }
