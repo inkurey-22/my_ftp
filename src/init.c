@@ -8,7 +8,6 @@
 #include "ftp.h"
 
 #include <netinet/in.h>
-#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -48,7 +47,7 @@ static int bind_server_socket(int sockfd, uint16_t port)
 
 static int listen_server_socket(int sockfd)
 {
-    if (listen(sockfd, UINT16_MAX) < 0)
+    if (listen(sockfd, 5) < 0)
         return -1;
     return 0;
 }
