@@ -9,7 +9,7 @@
 #ifndef FTP_H_
     #define FTP_H_
 
-    #define MAX_CLIENTS 256
+    #define MAX_CLIENTS UINT16_MAX
     #define USERDB_PATH "userdb.txt"
     #include <stdio.h>
     #include <stdint.h>
