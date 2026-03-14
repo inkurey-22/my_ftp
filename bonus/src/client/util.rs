@@ -1,6 +1,10 @@
 use std::io::{BufRead, Write};
 use std::net::TcpStream;
 
+pub fn parse_ftp_code(line: &str) -> Option<u16> {
+    line.get(0..3)?.parse::<u16>().ok()
+}
+
 pub fn enter_pasv(
     reader: &mut impl BufRead,
     writer: &mut TcpStream,
@@ -19,12 +23,22 @@ pub fn send_and_read(
     line: &mut String,
     cmd: &str,
 ) {
+    let _ = send_and_read_code(reader, writer, line, cmd);
+}
+
+pub fn send_and_read_code(
+    reader: &mut impl BufRead,
+    writer: &mut TcpStream,
+    line: &mut String,
+    cmd: &str,
+) -> Option<u16> {
     let cmd_with_crlf = format!("{}\r\n", cmd.trim());
     writer.write_all(cmd_with_crlf.as_bytes()).unwrap();
     writer.flush().unwrap();
     line.clear();
     reader.read_line(line).unwrap();
     println!("Server: {}", line.trim());
+    parse_ftp_code(line)
 }
 
 pub fn parse_pasv(line: &str) -> Option<String> {

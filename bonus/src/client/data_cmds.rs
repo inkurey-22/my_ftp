@@ -1,5 +1,5 @@
 use super::mode::FtpMode;
-use super::util::{enter_pasv, send_and_read};
+use super::util::{enter_pasv, send_and_read, send_and_read_code};
 use crate::client::active::setup_active_port_command;
 use std::io::BufRead;
 use std::net::TcpStream;
@@ -26,7 +26,10 @@ pub fn handle_put_mode(
                 }
             };
             let stor_cmd = format!("STOR {}", filename);
-            send_and_read(reader, writer, line, &stor_cmd);
+            let stor_code = send_and_read_code(reader, writer, line, &stor_cmd);
+            if !matches!(stor_code, Some(100..=199)) {
+                return;
+            }
             if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
                 if let Ok(mut file) = std::fs::File::open(filename) {
                     std::io::copy(&mut file, &mut data_stream).unwrap();
@@ -51,7 +54,10 @@ pub fn handle_put_mode(
             };
             send_and_read(reader, writer, line, &port_cmd);
             let stor_cmd = format!("STOR {}", filename);
-            send_and_read(reader, writer, line, &stor_cmd);
+            let stor_code = send_and_read_code(reader, writer, line, &stor_cmd);
+            if !matches!(stor_code, Some(100..=199)) {
+                return;
+            }
             match listener.accept() {
                 Ok((mut data_stream, _)) => {
                     if let Ok(mut file) = std::fs::File::open(filename) {
@@ -94,7 +100,10 @@ pub fn handle_get_mode(
                 }
             };
             let retr_cmd = format!("RETR {}", filename);
-            send_and_read(reader, writer, line, &retr_cmd);
+            let retr_code = send_and_read_code(reader, writer, line, &retr_cmd);
+            if !matches!(retr_code, Some(100..=199)) {
+                return;
+            }
             if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
                 if let Ok(mut file) = std::fs::File::create(filename) {
                     std::io::copy(&mut data_stream, &mut file).unwrap();
@@ -119,7 +128,10 @@ pub fn handle_get_mode(
             };
             send_and_read(reader, writer, line, &port_cmd);
             let retr_cmd = format!("RETR {}", filename);
-            send_and_read(reader, writer, line, &retr_cmd);
+            let retr_code = send_and_read_code(reader, writer, line, &retr_cmd);
+            if !matches!(retr_code, Some(100..=199)) {
+                return;
+            }
             match listener.accept() {
                 Ok((mut data_stream, _)) => {
                     if let Ok(mut file) = std::fs::File::create(filename) {
@@ -161,7 +173,10 @@ pub fn handle_ls_mode(
             } else {
                 "LIST".to_string()
             };
-            send_and_read(reader, writer, line, &list_cmd);
+            let list_code = send_and_read_code(reader, writer, line, &list_cmd);
+            if !matches!(list_code, Some(100..=199)) {
+                return;
+            }
             if let Ok(mut data_stream) = TcpStream::connect(pasv_addr) {
                 let mut data = String::new();
                 std::io::Read::read_to_string(&mut data_stream, &mut data).unwrap();
@@ -187,7 +202,10 @@ pub fn handle_ls_mode(
             } else {
                 "LIST".to_string()
             };
-            send_and_read(reader, writer, line, &list_cmd);
+            let list_code = send_and_read_code(reader, writer, line, &list_cmd);
+            if !matches!(list_code, Some(100..=199)) {
+                return;
+            }
             match listener.accept() {
                 Ok((mut data_stream, _)) => {
                     let mut data = String::new();
